@@ -98,7 +98,7 @@
                         <p class="py-2 lh-1_8 py-md-4">
                           By staking CDEX, users are able to build up more tokens by the second. According to the amount of CDEX tokens a user is staking, they may qualify for certain tiers on the loyalty program. These different tiers, 'Codex Pawn', 'Codex Knight', and 'Codex King', offer users a CDEX staking % booster and random HRC20 reward eligibility. Please be informed that every interaction with the Smart Contract requires gas from the user in the form of HTML Coin. Users are able to unstake whenever they desire.
                         </p>
-                        <v-btn class="btn cbtn bg-prime" href="https://stex.com/?ref=33646848" target="_blank">Buy your CDEX Tokens</v-btn>
+                        <v-btn class="btn cbtn bg-prime" href="https://global.bittrex.com/Market/Index?MarketName=USDT-CDEX" target="_blank">Buy your CDEX Tokens</v-btn>
                     </div>
                     <div class="col-md-5 text-center align-self-center order-md-1 order-0">
                         <img src="../assets/about-stake.png" class="img-fluid p-md-4" alt="" srcset="" width="100%">
@@ -113,7 +113,7 @@
                     <!-- <img src="../assets/call2action.svg" alt="" class="img-fluid image position-absolute" srcset="" > -->
                     <div class="align-self-center col-12 text-center">
                         <h1 class="fw-bold text-white mt-5">Stake your CDEX tokens <br> and earn rewards</h1>
-                        <v-btn class="btn cbtn btn-dark my-5" x-large href="https://stex.com/?ref=33646848" target="_blank">Buy your CDEX Tokens</v-btn>
+                        <v-btn class="btn cbtn btn-dark my-5" x-large href="https://global.bittrex.com/Market/Index?MarketName=USDT-CDEX" target="_blank">Buy your CDEX Tokens</v-btn>
                     </div>
                 </div>
             </div>

@@ -263,7 +263,7 @@
                 <!-- <img src="../assets/call2action.svg" alt="" class="img-fluid image position-absolute" srcset="" > -->
                 <div class="align-self-center col-12 text-center">
                   <h1 class="fw-bold text-white mt-5">Stake your CDEX tokens <br> and earn rewards</h1>
-                  <v-btn class="btn cbtn btn-dark my-5" x-large href="https://stex.com/?ref=33646848" target="_blank">Buy your CDEX Tokens</v-btn>
+                  <v-btn class="btn cbtn btn-dark my-5" x-large href="https://global.bittrex.com/Market/Index?MarketName=USDT-CDEX" target="_blank">Buy your CDEX Tokens</v-btn>
                 </div>
               </div>
             </div>

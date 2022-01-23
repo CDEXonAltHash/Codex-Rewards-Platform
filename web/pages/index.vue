@@ -33,7 +33,7 @@
           <div class="row cvh position-relative">
             <div class="col-md-6 align-self-center my-md-0 mt-4">
               <h1 class="fw-bold width">Stake your CDEX <br> tokens and earn <br> rewards</h1>
-              <p class="width">Build your CDEX balance by staking in our smart contract audited by Certik. Users can unstake at anytime.</p>
+              <p class="width">Build your CDEX balance by staking in our smart contract (soon to be audited by Certik). Users can unstake at anytime.</p>
               <div class="mt-5">
                 <v-btn class="btn cbtn bg-prime shadow-sm me-md-3" x-large href="/reward">Start Staking</v-btn>
                 <v-btn class="btn cbtn btn-dark shadow-sm ms-md-5 ms-3" x-large @click="scrollMeTo('loyalty')">Learn More</v-btn>
@@ -158,7 +158,7 @@
               <h4 class="fw-bold">See the professional audit of the smart contracts used, so you can be sure your tokens are
                 safe.</h4>
               <p class="py-2">
-                Our contracts have been audited by Certik. 
+                Our contracts will sonn be audited by Certik. 
                 <br>CertiK is a pioneer in blockchain security, utilizing best-in-class AI technology to secure and monitor blockchain protocols and smart contracts. 
                 <br>CertiK’s mission is to secure the cyber world.
               </p>
@@ -190,7 +190,7 @@
             <!-- <img src="../assets/call2action.svg" alt="" class="img-fluid image position-absolute" srcset="" > -->
             <div class="align-self-center col-12 text-center">
               <h1 class="fw-bold text-white mt-5">Stake your CDEX tokens <br> and earn rewards</h1>
-              <v-btn class="btn cbtn btn-dark my-5" x-large href="https://stex.com/?ref=33646848" target="_blank">Buy your CDEX Tokens</v-btn>
+              <v-btn class="btn cbtn btn-dark my-5" x-large href="https://global.bittrex.com/Market/Index?MarketName=USDT-CDEX" target="_blank">Buy your CDEX Tokens</v-btn>
             </div>
           </div>
         </div>

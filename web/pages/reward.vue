@@ -34,7 +34,7 @@
             <div class="row text-center my-4 justify-content-center">
               <h1 class="fw-bold ">CDEX Rewards Members </h1>
               <p class="width">
-                Codex on Althash has provided users with a platform to build their CDEX holdings through Certik verified Smart Contracting.
+                Codex on Althash has provided users with a platform to build their CDEX holdings through Smart Contracting (soon to be audited by Certik).
               </p>
             </div>
             <div class="row mb-3 my-md-5">
@@ -508,7 +508,7 @@
                     <!-- <img src="../assets/call2action.svg" alt="" class="img-fluid image position-absolute" srcset="" > -->
                     <div class="align-self-center col-12 text-center my-4 justify-content-center">
                       <h2 class="fw-bold text-white m-2 px-md-5">Stake your CDEX tokens and earn rewards</h2>
-                      <v-btn class="btn cbtn btn-dark m-3" x-large href="https://stex.com/?ref=33646848" target="_blank">Buy your CDEX Tokens</v-btn>
+                      <v-btn class="btn cbtn btn-dark m-3" x-large href="https://global.bittrex.com/Market/Index?MarketName=USDT-CDEX" target="_blank">Buy your CDEX Tokens</v-btn>
                     </div>
                   </div>
                 </div>
@@ -801,6 +801,8 @@
               <v-btn :href="txViewUrl" target="_blank" color="deep-purple accent-2">Check transaction progress</v-btn>
               <br>
               <p class="px-5 mx-2 subtitle my-4">The values on this page will not reflect the changes until the transaction is confirmed by the network.</p>
+              <br>
+              <p class="px-5 mx-2 subtitle my-4">Transactions may take up to 10 minutes to be confirmed.</p>
           </template>
         </div>
       </div>

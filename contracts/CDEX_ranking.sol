@@ -93,20 +93,22 @@ contract CDEXRanking {
         addressPosition[_value] = 0;
     }
     
-    function ranking(uint _positions) public view returns (address[] memory) {
-        address[] memory _ranking = new address[](_positions);
+    function ranking(uint _positions) public view returns (address[] memory, uint256[] memory) {
+        address[] memory _addresses = new address[](_positions);
+        uint256[] memory _balances = new uint256[](_positions);
         uint aux = last();
         uint i;
         uint j;
         while (i < _positions) {
             j = 0;
             while (j < values[aux].length && i < _positions) {
-                _ranking[i] = values[aux][j];
+                _addresses[i] = values[aux][j];
+                _balances[i] = aux;
                 i++;
                 j++;
             }
             aux = prev(aux);
         }
-        return _ranking;
+        return (_addresses, _balances);
     }
 }

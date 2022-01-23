@@ -25,7 +25,7 @@
                       <a class="nav-link" href="/loyalty">Loyalty Program</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="#">Audit</a>
+                      <a class="nav-link" href="#">Audit (coming soon)</a>
                     </li>
                   </ul>
                 </div>
@@ -143,7 +143,7 @@
               <a href="/about" class="nav-link text-white">About the token</a>
               <a href="/reward" class="nav-link text-white">Reward Members</a>
               <a href="/loyalty" class="nav-link text-white">Loyalty Program</a>
-              <a href="/audit" class="nav-link text-white">Reward Member Audit</a>
+              <a href="#" class="nav-link text-white">Reward Member Audit</a>
             </div>
           </div>
         </div>

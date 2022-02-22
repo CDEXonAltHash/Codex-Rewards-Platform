@@ -6,7 +6,7 @@
         <div class="container">
           <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
-              <a class="navbar-brand" href="#"><img src="../assets/CODEX-LOGO-BLACK.png" alt="" class="logo" srcset=""></a>
+              <a class="navbar-brand" href="/"><img src="../assets/CODEX-LOGO-BLACK.png" alt="" class="logo" srcset=""></a>
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -214,6 +214,7 @@ Pushing innovation behind blockchain applications and software development.</p>
             <div class="ul">
               <a href="/about" class="nav-link text-white">About the token</a>
               <a href="/reward" class="nav-link text-white">Reward Members</a>
+              <a href="https://discord.gg/VatbEkgB" target="_blank" class="nav-link text-white">Suggestions</a>
               <a href="/loyalty" class="nav-link text-white">Loyalty Program</a>
               <a href="#" class="nav-link text-white">Reward Member Audit</a>
             </div>

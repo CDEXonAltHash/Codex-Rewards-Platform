@@ -146,6 +146,7 @@ input[type=radio]{
 } */
 
 .footIcon{
+    pointer-events: none;
     bottom: -40%;
     right: 0;
     opacity: 0.3;

@@ -6,7 +6,7 @@
           <div class="container">
             <nav class="navbar navbar-expand-lg navbar-light">
               <div class="container-fluid">
-                <a class="navbar-brand" href="#"><img src="../assets/CODEX-LOGO-BLACK.png" alt="" class="logo" srcset=""></a>
+                <a class="navbar-brand" href="/"><img src="../assets/CODEX-LOGO-BLACK.png" alt="" class="logo" srcset=""></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                   aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                   <!-- <span class="navbar-toggler-icon"></span> -->
@@ -35,6 +35,12 @@
               <h1 class="fw-bold ">CDEX Rewards Members </h1>
               <p class="width">
                 Codex on Althash has provided users with a platform to build their CDEX holdings through Smart Contracting (soon to be audited by Certik).
+              </p>
+              <p>
+                This platform is currently in <b>BETA</b>.
+              </p>
+              <p class="red--text">
+                If you leave this page, you will be automatically logged out of your wallet.
               </p>
             </div>
             <div class="row mb-3 my-md-5">
@@ -577,6 +583,7 @@
               <a href="/" class="nav-link text-white">Home</a>
               <a href="/about" class="nav-link text-white">About the token</a>
               <a href="/reward" class="nav-link text-white">Reward Members</a>
+              <a href="https://discord.gg/VatbEkgB" target="_blank" class="nav-link text-white">Suggestions</a>
               <a href="/loyalty" class="nav-link text-white">Loyalty Program</a>
               <a href="#" class="nav-link text-white">Reward Member Audit</a>
             </div>
@@ -1197,16 +1204,12 @@
 
           for (var i = 0; i < positions; i++) {
             rankingAddress = base58check.encode(decodedResult[0][i].substring(2), prefix)
-            console.log(decodedResult[1][i])
             rankingBalance = (decodedResult[1][i] / 1e8).toString()
             self.ranking[i] = {
               'address': rankingAddress.substring(0, 6) + '...' + rankingAddress.substring(rankingAddress.length-6, rankingAddress.length), 
               'balance': rankingBalance.toLocaleString("en-US", {style: "decimal", minimumFractionDigits: 2, maximumFractionDigits: 2})
             }
           }
-
-          console.log(self.ranking[0]);
-
           self.loadingRanking = false
         } catch(e) {
           console.log('Error reading ranking: ' + e.stack || e.toString() || e)

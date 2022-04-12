@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.4.21;
+pragma solidity 0.4.21;
 
 /**
  * @title Codex Rewards
@@ -256,8 +256,8 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     uint256 public loyaltyTier1Bonus = 125;
     uint256 public loyaltyTier2Bonus = 100;
     uint256 public loyaltyTier3Bonus = 50;
-    uint256 public loyaltyBonusTotal = 275;
     uint256 public depositedLoyaltyBonus;
+    mapping(address=>uint256) public loyaltyBonuses;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -384,7 +384,8 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
         _balances[msg.sender] = _balances[msg.sender].add(amount);
         /// Transfer the tokens from the sender's balance into the contract
         /// The amount needs to be previously approved in the token contract
-        CDEXToken.transferFrom(msg.sender, address(this), amount);
+        bool success = CDEXToken.transferFrom(msg.sender, address(this), amount);
+        require(success);
         /// Emits the event
         emit Staked(msg.sender, amount);
     }
@@ -423,21 +424,14 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
         updateReward(msg.sender) 
     {
         uint256 reward = rewards[msg.sender];
-        uint256 loyaltyBonus;
         /// Sanity checks
         if (reward > 0 && depositedRewardTokens >= reward) {
+            uint256 loyaltyBonus = loyaltyBonuses[msg.sender];
             /// The withdraw is always for the full accrued reward amount
             rewards[msg.sender] = 0;
+            loyaltyBonuses[msg.sender] = 0;
             /// Decrements the deposited reward tokens balance
             depositedRewardTokens = depositedRewardTokens.sub(reward);
-            /// Defines the bonus amount based on the sender's reward tier
-            if (_balances[msg.sender] >= loyaltyTier1) {
-                loyaltyBonus = reward.mul(loyaltyTier1Bonus).div(10000);
-            } else if (_balances[msg.sender] >= loyaltyTier2) {
-                loyaltyBonus = reward.mul(loyaltyTier2Bonus).div(10000);
-            } else if (_balances[msg.sender] >= loyaltyTier3) {
-                loyaltyBonus = reward.mul(loyaltyTier3Bonus).div(10000);
-            }
             /// Decrements the deposited loyalty bonus balance
             depositedLoyaltyBonus = depositedLoyaltyBonus.sub(loyaltyBonus);
             /// Transfers the total accrued rewards plus the calculated bonus amount
@@ -462,14 +456,18 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     /// @notice Updates the instance of the Token contract
     /// @param _contractAddress The address of the contract where
     ///        the new instance will point to
-    function setTokenContract(address _contractAddress) public onlyOwner {
+    function setTokenContract(address _contractAddress) external onlyOwner {
+        // Contract needs to be clean
+        require(depositedRewardTokens == 0);
         CDEXToken = CDEXTokenContract(_contractAddress);
     }
     
     /// @notice Updates the instance of the Ranking contract
     /// @param _contractAddress The address of the contract where
     ///        the new instance will point to
-    function setRankingContract(address _contractAddress) public onlyOwner {
+    function setRankingContract(address _contractAddress) external onlyOwner {
+        // Contract needs to be clean
+        require(depositedRewardTokens == 0);
         CDEXRanking = CDEXRankingContract(_contractAddress);
     }
     
@@ -478,16 +476,19 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     ///         notifyRewardAmount function needs to be executed.
     /// @param amount The value of tokens to be added to the balance.
     ///        To make it easier for the contract owner, the expected amount
-    ///        is in the integer format (without the 8 zeroes).
+    ///        does not consider the decimal places (without the 8 zeroes).
     function depositTokens(uint256 amount) public onlyOwner {
         /// Adding the decimal places to the amount
         amount = amount.mul(1e8);
-        /// Calculating the total loyalty bonus percentage from the total
-        depositedLoyaltyBonus = depositedLoyaltyBonus.add(amount.mul(loyaltyBonusTotal).div(10000));
-        /// Increasing the total deposited tokens with the amount
-        depositedRewardTokens = depositedRewardTokens.add(amount);
+        /// Calculating the total loyalty bonus percentage from the highest bonus tier
+        uint256 loyaltyBonusFromAmount = amount.mul(loyaltyTier1Bonus).div(10000);
+        /// Incrementing the total deposited loyalty bonus
+        depositedLoyaltyBonus = depositedLoyaltyBonus.add(loyaltyBonusFromAmount);
+        /// Increasing the total deposited tokens with the amount minus bonus
+        depositedRewardTokens = depositedRewardTokens.add(amount.sub(loyaltyBonusFromAmount));
         /// Transferring the whole amount to the contract
-        CDEXToken.transferFrom(owner, address(this), amount);
+        bool success = CDEXToken.transferFrom(owner, address(this), amount);
+        require(success);
         /// Emits the event
         emit RewardsDeposited(owner, address(this), amount);
     }
@@ -503,9 +504,8 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     {
         /// Adding the decimal places to the reward
         reward = reward.mul(1e8);
-        /// The total deposited amount should cater for the rewards and the loyalty bonus.
-        /// Therefore, the notified reward must be equal to total deposited minus total possible bonus over the reward.
-        require(reward <= depositedRewardTokens.sub(reward.mul(loyaltyBonusTotal).div(10000)));
+        /// The notified reward must be less then or equal to the total deposited rewards.
+        require(reward <= depositedRewardTokens);
         /// If not during staking period, calculates the new reward rate per second.
         /// Else, adds the new reward to current non-distributed rewards.
         if (block.timestamp >= periodFinish) {
@@ -518,7 +518,7 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
         /// Ensure the provided reward amount is not more than the balance in the contract.
         /// This keeps the reward rate in the right range, preventing overflows due to
         /// very high values of rewardRate in the earned and rewardsPerToken functions;
-        /// Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
+        /// Reward + leftover must be less than 2^256 / 10^8 to avoid overflow.
         require(rewardRate <= depositedRewardTokens.div(rewardsDuration));
         /// Updates the last updated time
         lastUpdateTime = block.timestamp;
@@ -550,6 +550,7 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
         uint256 _loyaltyTier3
     ) external onlyOwner 
     {
+        require(_loyaltyTier1 > _loyaltyTier2 && _loyaltyTier2 > _loyaltyTier3);
         /// Updates the tiers
         loyaltyTier1 = _loyaltyTier1.mul(1e8);
         loyaltyTier2 = _loyaltyTier2.mul(1e8);
@@ -570,6 +571,7 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
         uint256 _loyaltyTier3Bonus
     ) external onlyOwner 
     {
+        require(_loyaltyTier1Bonus > _loyaltyTier2Bonus && _loyaltyTier2Bonus > _loyaltyTier3Bonus);
         /// Total must be less than 100% of the reward
         /// Bonus tiers must be informed as two decimal precision, therefore 10,000 = 1 = 100%
         require(_loyaltyTier1Bonus.add(_loyaltyTier2Bonus).add(_loyaltyTier3Bonus) < 10000);
@@ -577,8 +579,6 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
         loyaltyTier1Bonus = _loyaltyTier1Bonus;
         loyaltyTier2Bonus = _loyaltyTier2Bonus;
         loyaltyTier3Bonus = _loyaltyTier3Bonus;
-        /// Updates the total bonus
-        loyaltyBonusTotal = loyaltyTier1Bonus.add(loyaltyTier2Bonus).add(loyaltyTier3Bonus);
         /// Emits the event
         emit LoyaltyTiersBonussUpdated(loyaltyTier1Bonus, loyaltyTier2Bonus, loyaltyTier3Bonus);
     }
@@ -591,7 +591,21 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
         if (account != address(0)) {
+            uint256 loyaltyBonus;
+            uint256 previousRewards = rewards[account];
             rewards[account] = earned(account);
+            // Calculates the reward earned since last time
+            // to serve as a basis for the loyalty bonus calculation
+            uint256 deltaRewards = rewards[account].sub(previousRewards);
+            /// Defines the bonus amount based on the account's reward tier
+            if (_balances[account] >= loyaltyTier1) {
+                loyaltyBonus = deltaRewards.mul(loyaltyTier1Bonus).div(10000);
+            } else if (_balances[account] >= loyaltyTier2) {
+                loyaltyBonus = deltaRewards.mul(loyaltyTier2Bonus).div(10000);
+            } else if (_balances[account] >= loyaltyTier3) {
+                loyaltyBonus = deltaRewards.mul(loyaltyTier3Bonus).div(10000);
+            }
+            loyaltyBonuses[account] = loyaltyBonuses[account].add(loyaltyBonus);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         _;
@@ -605,7 +619,6 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     event RewardPaid(address indexed user, uint256 reward);
     event LoyaltyBonusPaid(address indexed user, uint256 loyaltyBonus);
     event RewardsDurationUpdated(uint256 newDuration);
-    event Recovered(address token, uint256 amount);
     event RewardsDeposited(address sender, address receiver, uint256 reward);
     event LoyaltyTiersUpdated(uint256 loyaltyTier1, uint256 loyaltyTier2, uint256 loyaltyTier3);
     event LoyaltyTiersBonussUpdated(uint256 loyaltyTier1Bonus, uint256 loyaltyTier2Bonus, uint256 loyaltyTier3Bonus);

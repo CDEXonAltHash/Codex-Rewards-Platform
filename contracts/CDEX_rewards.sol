@@ -262,6 +262,7 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
     uint256 public depositedRewardTokens;
+    uint256 public committedRewardTokens;
 
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
@@ -425,13 +426,13 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     {
         uint256 reward = rewards[msg.sender];
         /// Sanity checks
-        if (reward > 0 && depositedRewardTokens >= reward) {
+        if (reward > 0 && committedRewardTokens >= reward) {
             uint256 loyaltyBonus = loyaltyBonuses[msg.sender];
             /// The withdraw is always for the full accrued reward amount
             rewards[msg.sender] = 0;
             loyaltyBonuses[msg.sender] = 0;
-            /// Decrements the deposited reward tokens balance
-            depositedRewardTokens = depositedRewardTokens.sub(reward);
+            /// Decrements the committed reward tokens balance
+            committedRewardTokens = committedRewardTokens.sub(reward);
             /// Decrements the deposited loyalty bonus balance
             depositedLoyaltyBonus = depositedLoyaltyBonus.sub(loyaltyBonus);
             /// Transfers the total accrued rewards plus the calculated bonus amount
@@ -458,7 +459,7 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     ///        the new instance will point to
     function setTokenContract(address _contractAddress) external onlyOwner {
         // Contract needs to be clean
-        require(depositedRewardTokens == 0);
+        require(depositedRewardTokens == 0 && committedRewardTokens == 0);
         CDEXToken = CDEXTokenContract(_contractAddress);
     }
     
@@ -467,7 +468,7 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     ///        the new instance will point to
     function setRankingContract(address _contractAddress) external onlyOwner {
         // Contract needs to be clean
-        require(depositedRewardTokens == 0);
+        require(depositedRewardTokens == 0 && committedRewardTokens == 0);
         CDEXRanking = CDEXRankingContract(_contractAddress);
     }
     
@@ -607,6 +608,9 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
             }
             loyaltyBonuses[account] = loyaltyBonuses[account].add(loyaltyBonus);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
+            // Moves the rewarded amount from deposited to committed funds
+            depositedRewardTokens = depositedRewardTokens.sub(deltaRewards);
+            committedRewardTokens = committedRewardTokens.add(deltaRewards);
         }
         _;
     }

@@ -262,6 +262,7 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
     uint256 public depositedRewardTokens;
+    uint256 public reservedRewardTokens;
     uint256 public committedRewardTokens;
 
     uint256 private _totalSupply;
@@ -454,24 +455,6 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
     
     // RESTRICTED FUNCTIONS
     
-    /// @notice Updates the instance of the Token contract
-    /// @param _contractAddress The address of the contract where
-    ///        the new instance will point to
-    function setTokenContract(address _contractAddress) external onlyOwner {
-        // Contract needs to be clean
-        require(depositedRewardTokens == 0 && committedRewardTokens == 0);
-        CDEXToken = CDEXTokenContract(_contractAddress);
-    }
-    
-    /// @notice Updates the instance of the Ranking contract
-    /// @param _contractAddress The address of the contract where
-    ///        the new instance will point to
-    function setRankingContract(address _contractAddress) external onlyOwner {
-        // Contract needs to be clean
-        require(depositedRewardTokens == 0 && committedRewardTokens == 0);
-        CDEXRanking = CDEXRankingContract(_contractAddress);
-    }
-    
     /// @notice Allows the contract owner to add tokens to the contract balance.
     ///         This amount is not yet considered as a reward. For that the
     ///         notifyRewardAmount function needs to be executed.
@@ -516,11 +499,14 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
             uint256 leftover = remaining.mul(rewardRate);
             rewardRate = reward.add(leftover).div(rewardsDuration);
         }
+        /// Moves the funds from deposited to reserved balance to avoid double notification
+        depositedRewardTokens = depositedRewardTokens.sub(reward);
+        reservedRewardTokens = reservedRewardTokens.add(reward);
         /// Ensure the provided reward amount is not more than the balance in the contract.
         /// This keeps the reward rate in the right range, preventing overflows due to
         /// very high values of rewardRate in the earned and rewardsPerToken functions;
         /// Reward + leftover must be less than 2^256 / 10^8 to avoid overflow.
-        require(rewardRate <= depositedRewardTokens.div(rewardsDuration));
+        require(rewardRate <= reservedRewardTokens.div(rewardsDuration));
         /// Updates the last updated time
         lastUpdateTime = block.timestamp;
         /// Resets the staking period
@@ -608,8 +594,8 @@ contract CDEXStakingPool is ReentrancyGuard, Pausable {
             }
             loyaltyBonuses[account] = loyaltyBonuses[account].add(loyaltyBonus);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
-            // Moves the rewarded amount from deposited to committed funds
-            depositedRewardTokens = depositedRewardTokens.sub(deltaRewards);
+            // Moves the rewarded amount from reserved to committed funds
+            reservedRewardTokens = reservedRewardTokens.sub(deltaRewards);
             committedRewardTokens = committedRewardTokens.add(deltaRewards);
         }
         _;
